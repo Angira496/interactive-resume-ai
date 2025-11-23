@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Angira Banerjee - Interactive Resume</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chosen Palette: Neutral Slate -->
+    <!-- Application Structure Plan: A tabbed navigation SPA structure (`Profile`, `Education`, `Skills`, `Projects`) was chosen over a single-scrolling page. This design allows recruiters to instantly access the specific information they need (e.g., jump directly to 'Projects') without excessive scrolling, which is crucial for quick reviews. User lands on the `Profile` tab (Objective, Experience, secondary info). `Education` uses a vertical timeline for clear chronology. `Skills` and `Projects` use a card-based grid to visually segment information. This structure prioritizes non-linear, user-driven exploration. -->
+    <!-- Visualization & Content Choices: 
+        - Contact/Header: Goal: Inform -> Presentation: HTML/Tailwind flex layout -> Interaction: Clickable links -> Justification: Standard accessible contact.
+        - Navigation: Goal: Organize -> Presentation: HTML/Tailwind styled buttons -> Interaction: JS onclick to toggle `hidden` class on content divs -> Justification: Core SPA navigation.
+        - Career Objective: Goal: Inform -> Presentation: Styled text block (HTML `p`) -> Interaction: None -> Justification: Key summary.
+        - Education: Goal: Change (chronology) -> Presentation: Vertical timeline (HTML/Tailwind) -> Interaction: None -> Justification: Visually engaging for chronological data.
+        - Skills: Goal: Organize -> Presentation: Grid of styled cards (HTML/Tailwind) -> Interaction: None -> Justification: Visually segments skill sets for quick scanning. No charts used as no proficiency data exists.
+        - Projects: Goal: Organize -> Presentation: Grid of styled cards (HTML/Tailwind) -> Interaction: Clickable links to live/code sites -> Justification: Easy comparison and direct access to proof of work.
+        - Certificates/Languages/Personal: Goal: Inform -> Presentation: Simple styled lists (HTML) -> Interaction: Clickable links (certificates) -> Justification: Secondary info grouped on main profile.
+        - Gemini Feature 1 (Profile): Goal: Synthesis/Insight -> Presentation: Button trigger, output text area -> Interaction: LLM Call to summarize entire resume for recruiter.
+        - Gemini Feature 2 (Skills): Goal: Preparation/Insight -> Presentation: Button trigger, output text area -> Interaction: LLM Call to generate interview questions based on skills.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Style for the active tab */
+        .tab-active {
+            border-bottom-width: 2px;
+            border-color: #4f46e5; /* indigo-600 */
+            color: #4f46e5;
+            font-weight: 600;
+        }
+        /* Style for inactive tabs */
+        .tab-inactive {
+            color: #6b7280; /* gray-500 */
+            border-color: transparent;
+        }
+        /* Simple vertical timeline bar */
+        .timeline-item {
+            position: relative;
+            padding-left: 2rem;
+            padding-bottom: 1.5rem;
+            border-left: 2px solid #e5e7eb; /* gray-200 */
+        }
+        .timeline-dot {
+            position: absolute;
+            left: -0.5rem;
+            top: 0.25rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 9999px;
+            background-color: #4f46e5; /* indigo-600 */
+            border: 2px solid #ffffff;
+        }
+        .timeline-item:last-child {
+            border-left: 2px solid transparent;
+            padding-bottom: 0;
+        }
+        .llm-loading {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 sm:p-8 max-w-6xl">
+        
+        <!-- Header -->
+        <header class="p-6 bg-white rounded-lg shadow-md mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-center">
+                <div>
+                    <h1 class="text-4xl font-bold text-indigo-700">ANGIRA BANERJEE</h1>
+                    <p class="text-xl text-slate-600 mt-1">Aspiring Developer & Data Analyst</p>
+                </div>
+                <div class="text-left sm:text-right mt-4 sm:mt-0 text-sm">
+                    <p class="flex items-center justify-start sm:justify-end">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M14.243 5.757a6 6 0 10-8.486 8.486 6 6 0 008.486-8.486zM12.828 7.172a4 4 0 10-5.656 5.656 4 4 0 005.656-5.656z" clip-rule="evenodd" /><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16z" clip-rule="evenodd" /></svg>
+                        Kolkata, India
+                    </p>
+                    <a href="mailto:angira923@gmail.com" class="flex items-center justify-start sm:justify-end mt-1 text-indigo-600 hover:underline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M2.003 5.884L10 11.884l7.997-6M2 18h16V6.116L10 12.116 2 6.116V18z" /></svg>
+                        angira923@gmail.com
+                    </a>
+                    <p class="flex items-center justify-start sm:justify-end mt-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-slate-500" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C6.842 18 2 13.158 2 7V3z" /></svg>
+                        7449891009 / 9874988685
+                    </p>
+                    <a href="https://www.linkedin.com/in/angirabanerjee" target="_blank" rel="noopener noreferrer" class="flex items-center justify-start sm:justify-end mt-1 text-indigo-600 hover:underline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.389 0-1.601 1.086-1.601 2.206v4.249H8.014V8h2.559v1.174h.037c.356-.675 1.227-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.71zM5.368 7.004a1.596 1.596 0 100-3.192 1.596 1.596 0 000 3.192zM6.65 16.338H4.084V8h2.566v8.338zM17.632 0H2.369A2.369 2.369 0 000 2.369v15.263A2.369 2.369 0 002.369 20h15.263A2.369 2.369 0 0020 17.631V2.369A2.369 2.369 0 0017.632 0z" clip-rule="evenodd" /></svg>
+                        linkedin.com/in/angirabanerjee
+                    </a>
+                     <a href="https://github.com/Angira496" target="_blank" rel="noopener noreferrer" class="flex items-center justify-start sm:justify-end mt-1 text-indigo-600 hover:underline">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 0C4.477 0 0 4.477 0 10c0 4.418 2.865 8.165 6.839 9.49.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.03-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0110 5.424c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.379.202 2.398.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.308.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.003 10.003 0 0020 10C20 4.477 15.523 0 10 0z" clip-rule="evenodd" /></svg>
+                        github.com/Angira496
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="bg-white rounded-lg shadow-md mb-8">
+            <ul class="flex flex-wrap justify-center sm:justify-start">
+                <li><button class="nav-tab p-4 border-b-2 tab-active" onclick="showSection('profile')">Profile Summary</button></li>
+                <li><button class="nav-tab p-4 border-b-2 tab-inactive" onclick="showSection('education')">Education</button></li>
+                <li><button class="nav-tab p-4 border-b-2 tab-inactive" onclick="showSection('skills')">Skills</button></li>
+                <li><button class="nav-tab p-4 border-b-2 tab-inactive" onclick="showSection('projects')">Projects</button></li>
+            </ul>
+        </nav>
+
+        <!-- Content Sections -->
+        <main>
+            <!-- Profile Section -->
+            <section id="profile" class="content-section space-y-8">
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">Career Objective</h2>
+                    <p class="text-lg text-slate-700 leading-relaxed">
+                        Seeking a challenging position to leverage established proficiencies in Python and advanced web technologies, thereby contributing to organizational innovation and sustained success. This objective is underpinned by a robust academic foundation in programming, database management, and comprehensive system development, acquired during a Master's in Computer Application program.
+                    </p>
+                    <button id="summary-btn" onclick="generateSummary()" class="mt-4 px-4 py-2 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 transition duration-150 flex items-center">
+                        ✨ Synthesize Candidate Summary
+                        <div id="summary-loading" class="llm-loading hidden ml-3"></div>
+                    </button>
+                    <div id="summary-output" class="mt-4 p-4 border border-indigo-300 bg-indigo-50 rounded-lg text-slate-700 hidden">
+                        <p class="font-bold text-indigo-700 mb-2">Recruiter Synthesis:</p>
+                        <p id="summary-text"></p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold text-indigo-700 mb-4">Work Experience</h2>
+                        <p class="text-lg text-slate-700">Entry-Level Professional</p>
+                    </div>
+                     <div class="p-6 bg-white rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold text-indigo-700 mb-4">Languages</h2>
+                        <ul class="list-disc list-inside space-y-1 text-slate-700">
+                            <li>English</li>
+                            <li>Bengali</li>
+                            <li>Hindi</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">Certificates</h2>
+                    <ul class="list-disc list-inside space-y-2">
+                        <li>
+                            <a href="https://pdf.ac/36y5LG" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">Artificial Intelligence and Machine Learning (AI ML) certification from Globsyn Group</a>
+                        </li>
+                        <li>
+                            <a href="https://pdf.ac/2zUHc7" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:underline">Data Science certification from Euphoria Gen X</a>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">Personal Details</h2>
+                    <ul class="list-disc list-inside space-y-1 text-slate-700">
+                        <li><strong>Date of Birth:</strong> 5 September 2002</li>
+                        <li><strong>Gender:</strong> Female</li>
+                        <li><strong>Nationality:</strong> Indian</li>
+                        <li><strong>Interests:</strong> Engagement with music and travel activities.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Education Section -->
+            <section id="education" class="content-section hidden">
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-6">Education</h2>
+                    <p class="text-lg text-slate-700 leading-relaxed mb-8">My academic background has provided me with a strong theoretical and practical foundation in computer science, data analysis, and application development.</p>
+                    <div class="relative">
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <h3 class="text-xl font-semibold text-slate-800">Master's in Computer Application (MCA)</h3>
+                            <p class="text-sm text-slate-500 font-medium">2023 - 2025</p>
+                            <p class="text-slate-600 mt-1">Institution: Guru Nanak Institute of Technology</p>
+                            <p class="text-slate-600">Affiliation: JIS University Under MAKAUT</p>
+                            <p class="font-semibold text-indigo-600 mt-1">CGPA: 9.48 | Percentage: 87.30</p>
+                        </div>
+                        <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <h3 class="text-xl font-semibold text-slate-800">Bachelor of Arts (Honours) in Computer Application</h3>
+                            <p class="text-sm text-slate-500 font-medium">2020 - 2023</p>
+                            <p class="text-slate-600 mt-1">Institution: Sarojini Naidu College for Women</p>
+                            <p class="text-slate-600">Affiliation: West Bengal State University</p>
+                            <p class="font-semibold text-indigo-600 mt-1">CGPA: 9.09 | Percentage: 76.35</p>
+                        </div>
+                         <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <h3 class="text-xl font-semibold text-slate-800">Higher Secondary Examination (H.S.)</h3>
+                            <p class="text-sm text-slate-500 font-medium">2020</p>
+                            <p class="text-slate-600 mt-1">Institution: Sodepur Sushil Krishna Sikshayatan School</p>
+                            <p class="font-semibold text-indigo-600 mt-1">Percentage: 80</p>
+                        </div>
+                         <div class="timeline-item">
+                            <span class="timeline-dot"></span>
+                            <h3 class="text-xl font-semibold text-slate-800">Secondary Examination</h3>
+                            <p class="text-sm text-slate-500 font-medium">2018</p>
+                            <p class="text-slate-600 mt-1">Institution: Sodepur Sushil Krishna Sikshayatan School</p>
+                            <p class="font-semibold text-indigo-600 mt-1">Percentage: 81</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Skills Section -->
+            <section id="skills" class="content-section hidden">
+                <div class="p-6 bg-white rounded-lg shadow-md">
+                     <h2 class="text-2xl font-bold text-indigo-700 mb-4">Technical & Key Skills</h2>
+                     <p class="text-lg text-slate-700 leading-relaxed mb-8">This section details my technical and professional competencies, organized by category. These are the tools and methods I leverage to build effective and innovative solutions.</p>
+                     
+                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h3 class="text-xl font-semibold text-indigo-700 mb-3">Programming Languages</h3>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                <li>Python</li>
+                                <li>C (Basic)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h3 class="text-xl font-semibold text-indigo-700 mb-3">Database Management</h3>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                <li>RDBMS</li>
+                                <li>SQL (Structured Query Language)</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h3 class="text-xl font-semibold text-indigo-700 mb-3">Data Analysis & Visualization</h3>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                <li>Pandas</li>
+                                <li>NumPy</li>
+                                <li>Matplotlib</li>
+                                <li>Power BI</li>
+                                <li>Exploratory Data Analysis (EDA)</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 rounded-lg border border-slate-200">
+                            <h3 class="text-xl font-semibold text-indigo-700 mb-3">Core Competencies</h3>
+                            <ul class="list-disc list-inside space-y-1 text-slate-700">
+                                <li>Teamwork</li>
+                                <li>Problem-Solving</li>
+                                <li>Rapid Learning Adaptation</li>
+                                <li>Logical Reasoning</li>
+                                <li>Good Communication</li>
+                            </ul>
+                        </div>
+                     </div>
+
+                    <button id="interview-btn" onclick="generateInterviewQuestions()" class="mt-8 px-4 py-2 bg-pink-600 text-white font-semibold rounded-lg shadow-md hover:bg-pink-700 transition duration-150 flex items-center">
+                        ✨ Generate Interview Questions
+                        <div id="interview-loading" class="llm-loading hidden ml-3 border-t-pink-300"></div>
+                    </button>
+                    <div id="interview-output" class="mt-4 p-4 border border-pink-300 bg-pink-50 rounded-lg text-slate-700 hidden">
+                        <p class="font-bold text-pink-700 mb-2">Generated Interview Prep:</p>
+                        <div id="interview-text" class="whitespace-pre-wrap"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Projects Section -->
+            <section id="projects" class="content-section hidden">
+                 <div class="p-6 bg-white rounded-lg shadow-md">
+                    <h2 class="text-2xl font-bold text-indigo-700 mb-4">Projects</h2>
+                    <p class="text-lg text-slate-700 leading-relaxed mb-8">Below is a selection of my key academic and personal projects. Each project demonstrates my ability to apply theoretical knowledge to solve real-world problems, from machine learning to full-stack web development.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Project 1 -->
+                        <div class="flex flex-col bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200 h-full">
+                            <div class="p-5 flex-grow">
+                                <h3 class="text-xl font-semibold text-indigo-700">Bank Loan Prediction System</h3>
+                                <p class="text-sm text-slate-500 mt-1 font-medium">Domain: Applied Python Machine Learning with Web Deployment</p>
+                                <p class="text-slate-600 mt-3">Developed a predictive model for bank loan eligibility, utilizing Google Colab for machine learning execution. Deployed via Django with an HTML, CSS, and JavaScript UI.</p>
+                            </div>
+                            <div class="p-5 bg-slate-50 border-t border-slate-100">
+                                <a href="https://ml27angira.pythonanywhere.com/" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">View Live Project &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- Project 2 -->
+                        <div class="flex flex-col bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200 h-full">
+                            <div class="p-5 flex-grow">
+                                <h3 class="text-xl font-semibold text-indigo-700">Indian Weather Data Analysis</h3>
+                                <p class="text-sm text-slate-500 mt-1 font-medium">Domain: Data Analysis and Visualization Using Python</p>
+                                <p class="text-slate-600 mt-3">Executed analysis of Indian weather data, using Pandas, NumPy, Matplotlib, and Plotly. Deployed as a web application using Streamlit.</p>
+                            </div>
+                            <div class="p-5 bg-slate-50 border-t border-slate-100">
+                                <a href="https://github.com/Angira496/indian-weather-data-analysis" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">View on GitHub &rarr;</a>
+                            </div>
+                        </div>
+
+                        <!-- Project 3 -->
+                        <div class="flex flex-col bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200 h-full">
+                            <div class="p-5 flex-grow">
+                                <h3 class="text-xl font-semibold text-indigo-700">Online Shopping Cart</h3>
+                                <p class="text-sm text-slate-500 mt-1 font-medium">Domain: Web Development for E-commerce Application</p>
+                                <p class="text-slate-600 mt-3">Constructed a complete E-commerce web application, developed in Visual Studio I.D.E., with data managed by MS SQL Server.</p>
+                            </div>
+                            <div class="p-5 bg-slate-50 border-t border-slate-100">
+                                <a href="https://github.com/Angira496/eshopping-cart" target="_blank" rel="noopener noreferrer" class="font-medium text-indigo-600 hover:underline">View on GitHub &rarr;</a>
+                            </div>
+                        </div>
+
+                    </div>
+                 </div>
+            </section>
+        </main>
+
+    </div>
+
+    <script>
+        const API_KEY = "";
+        const API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent";
+        
+        // Resume data structured for prompting
+        const resumeData = {
+            objective: "Seeking a challenging position to leverage established proficiencies in Python and advanced web technologies, thereby contributing to organizational innovation and sustained success. This objective is underpinned by a robust academic foundation in programming, database management, and comprehensive system development, acquired during a Master's in Computer Application program.",
+            education: "Master's in Computer Application (MCA) from Guru Nanak Institute of Technology (CGPA 9.48). Bachelor of Arts (Honours) in Computer Application (CGPA 9.09).",
+            technicalSkills: ["Python", "C (Basic)", "RDBMS", "SQL", "Pandas", "NumPy", "Matplotlib", "Power BI", "Exploratory Data Analysis (EDA)"],
+            projects: [
+                { title: "Bank Loan Prediction System", domain: "Applied Python Machine Learning with Web Deployment", description: "Developed a predictive model for bank loan eligibility, utilizing Google Colab for machine learning execution. Deployed via Django with an HTML, CSS, and JavaScript UI." },
+                { title: "Indian Weather Data Analysis", domain: "Data Analysis and Visualization Using Python", description: "Executed analysis of Indian weather data, using Pandas, NumPy, Matplotlib, and Plotly. Deployed as a web application using Streamlit." },
+                { title: "Online Shopping Cart", domain: "Web Development for E-commerce Application", description: "Constructed a complete E-commerce web application, developed in Visual Studio I.D.E., with data managed by MS SQL Server." }
+            ]
+        };
+
+        async function exponentialBackoffFetch(url, options, maxRetries = 5, delay = 1000) {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const response = await fetch(url, options);
+                    if (response.status !== 429) {
+                        return response;
+                    }
+                } catch (error) {
+                    console.error("Fetch attempt failed:", error);
+                }
+                if (i < maxRetries - 1) {
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2;
+                }
+            }
+            throw new Error("API request failed after multiple retries.");
+        }
+
+        async function fetchGeminiResponse(systemPrompt, userQuery) {
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+            };
+
+            const url = `${API_URL}?key=${API_KEY}`;
+            
+            try {
+                const response = await exponentialBackoffFetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                return text || "Error: Could not retrieve generated content.";
+
+            } catch (error) {
+                console.error("Gemini API call failed:", error);
+                return "Error: Failed to connect to the analysis engine.";
+            }
+        }
+        
+        async function generateSummary() {
+            const outputDiv = document.getElementById('summary-output');
+            const outputText = document.getElementById('summary-text');
+            const loadingSpinner = document.getElementById('summary-loading');
+            const button = document.getElementById('summary-btn');
+
+            outputText.textContent = "Generating synthesized summary...";
+            outputDiv.classList.remove('hidden');
+            loadingSpinner.classList.remove('hidden');
+            button.disabled = true;
+
+            const projectsList = resumeData.projects.map(p => `- ${p.title} (${p.domain})`).join('\n');
+
+            const systemPrompt = "You are a professional hiring manager. Analyze the provided resume information (Objective, Skills, Education, Projects) and generate a single, compelling, 3-sentence summary of the candidate's profile. Focus on their technical strengths and potential impact.";
+            
+            const userQuery = `
+            Candidate Profile for Synthesis:
+            Objective: ${resumeData.objective}
+            Education: ${resumeData.education}
+            Technical Skills: ${resumeData.technicalSkills.join(', ')}
+            Key Projects:
+            ${projectsList}
+            `;
+
+            const summary = await fetchGeminiResponse(systemPrompt, userQuery);
+
+            outputText.textContent = summary;
+            loadingSpinner.classList.add('hidden');
+            button.disabled = false;
+        }
+
+        async function generateInterviewQuestions() {
+            const outputDiv = document.getElementById('interview-output');
+            const outputText = document.getElementById('interview-text');
+            const loadingSpinner = document.getElementById('interview-loading');
+            const button = document.getElementById('interview-btn');
+
+            outputText.textContent = "Generating technical interview questions...";
+            outputDiv.classList.remove('hidden');
+            loadingSpinner.classList.remove('hidden');
+            button.disabled = true;
+
+            const techSkills = resumeData.technicalSkills.filter(skill => 
+                ["Python", "SQL", "Pandas", "NumPy", "Matplotlib", "Exploratory Data Analysis"].includes(skill)
+            );
+
+            const systemPrompt = "You are an AI Interviewer specializing in Data Science and Python development. Generate exactly 5 structured technical interview questions based on the candidate's listed skills. Format the response as a numbered list with a newline after each question.";
+            
+            const userQuery = `Generate 5 technical interview questions for a candidate with the following skills: ${techSkills.join(', ')} and project experience in Machine Learning (Bank Loan Prediction) and Data Analysis (Indian Weather Data).`;
+
+            const questions = await fetchGeminiResponse(systemPrompt, userQuery);
+            
+            outputText.textContent = questions;
+            loadingSpinner.classList.add('hidden');
+            button.disabled = false;
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+            showSection('profile');
+        });
+
+        function showSection(sectionId) {
+            // Hide all content sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.add('hidden');
+            });
+
+            // Deactivate all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('tab-active');
+                tab.classList.add('tab-inactive');
+            });
+
+            // Show the target content section
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.remove('hidden');
+            }
+
+            // Activate the target tab
+            const targetTab = document.querySelector(`.nav-tab[onclick="showSection('${sectionId}')"]`);
+            if (targetTab) {
+                targetTab.classList.add('tab-active');
+                targetTab.classList.remove('tab-inactive');
+            }
+        }
+    </script>
+
+</body>
+</html>
