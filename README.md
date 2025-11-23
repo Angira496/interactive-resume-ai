@@ -5,7 +5,7 @@ I've successfully integrated two key features powered by the Gemini API into you
 
 
 
-http://googleusercontent.com/immersive_entry_chip/0
+
 
 I've successfully integrated two key features powered by the Gemini API into your interactive resume:
 
